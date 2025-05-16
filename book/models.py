@@ -53,7 +53,6 @@ class Review(models.Model):
 class Basket(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="basket")
-    quantity = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
