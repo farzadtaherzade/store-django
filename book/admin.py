@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Books, Review
+from .models import Books, Review, BasketItem, Basket
 
 # Register your models here.
 
@@ -17,3 +17,16 @@ class BookAdmin(admin.ModelAdmin):
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     model = Review
+
+
+class BasketItemInline(admin.TabularInline):
+    model = BasketItem
+    extra = 0
+    fields = ["book", "quantity"]
+
+
+@admin.register(Basket)
+class BasketAdmin(admin.ModelAdmin):
+    model = Basket
+    list_display = ["id", "user", "total_price"]
+    inlines = [BasketItemInline]

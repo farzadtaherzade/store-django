@@ -55,7 +55,8 @@ class Basket(models.Model):
         User, on_delete=models.CASCADE, related_name="basket")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(
+        max_digits=10, decimal_places=2, editable=False, default=0)
 
     def calculate_total_price(self):
         total = sum(item.get_total_price()
@@ -65,7 +66,7 @@ class Basket(models.Model):
         return
 
     def __str__(self):
-        return f"{self.user.username} - {self.book.name} - {self.quantity}"
+        return f"{self.user.username}"
 
 
 class BasketItem(models.Model):
