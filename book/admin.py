@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Books
+from .models import Books, Review
 
 # Register your models here.
 
@@ -7,4 +7,13 @@ from .models import Books
 @admin.register(Books)
 class BookAdmin(admin.ModelAdmin):
     model = Books
+    list_display = ["id", "name", "price", "tag_list"]
     # prepopulated_fields = {"slug": ["name"]}
+
+    def tag_list(self, obj):
+        return u", ".join(o.name for o in obj.tags.all())
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    model = Review

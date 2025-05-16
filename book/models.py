@@ -24,3 +24,27 @@ class Books(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="books")
     is_active = models.BooleanField(default=True)
+    view = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Book"
+
+    def __str__(self):
+        return self.name
+
+
+class Review(models.Model):
+    book = models.ForeignKey(
+        Books, on_delete=models.CASCADE, related_name="reviews")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="reviews")
+    rating = models.PositiveIntegerField()
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("book", "user")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.book.name} - {self.rating}"
