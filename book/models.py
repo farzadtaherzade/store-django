@@ -82,3 +82,8 @@ class BasketItem(models.Model):
 
     def __str__(self):
         return f"{self.basket.user.username} - {self.book.name} - {self.quantity}"
+
+    class Meta:
+        unique_together = ("basket", "book")
+        ordering = ["-created_at"]
+        verbose_name = "Basket Item"
