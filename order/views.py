@@ -1,7 +1,7 @@
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.filters import OrderingFilter, SearchFilter
 from book.models import Basket, BasketItem
 from .models import Order, OrderItem
 from .serializers import OrderSerializers
@@ -16,7 +16,7 @@ class CheckoutView(GenericAPIView):
     def post(self, request):
         user = request.user
         basket = Basket.objects.get(user=user)
-        basket_items = BasketItem.objects.filter(basket=basket)
+        basket_items = BasketItem.objects.filter(basket=basket, is_ghost=False)
         basket.calculate_total_price()
 
         if not basket_items.exists():
@@ -24,7 +24,7 @@ class CheckoutView(GenericAPIView):
 
         order = Order.objects.create(
             user=user,
-            total_price=basket.calculate_total_price(),
+            total_price=basket.total_price,
             status="pending",
             method=request.data.get("method", "online_payment"),
         )
@@ -37,6 +37,18 @@ class CheckoutView(GenericAPIView):
                 price=item.get_total_price(),
             )
 
-        basket_items.delete()
+        basket_items.filter(is_ghost=False).delete()
         serializer = self.get_serializer(order)
         return Response(serializer.data, status=201)
+
+
+class OrderList(ListAPIView):
+    queryset = Order.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = OrderSerializers
+    filter_backends = [OrderingFilter]
+    ordering = ["-created_at"]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Order.objects.filter(user=user)
