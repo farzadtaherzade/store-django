@@ -46,7 +46,8 @@ INSTALLED_APPS = [
 
     # local apps
     "book",
-    "account.apps.AccountConfig",
+    "account",
+    "order",
 
     # thirds party packages
     'taggit',

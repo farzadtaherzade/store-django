@@ -1,15 +1,35 @@
 from django.db import models
+from django.contrib.auth import get_user_model
+from book.models import Books
 
 # Create your models here.
 
+User = get_user_model()
+
 
 class Order(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("shipped", "Shipped"),
+        ("delivered", "Delivered"),
+        ("cancelled", "Cancelled"),
+    ]
+
+    METHOD_CHOICES = [
+        ("online_payment", "Online Payment"),
+        ("chash_on_delivery", "Cash on Delivery"),
+    ]
+
     user = models.ForeignKey(
-        "user.User", on_delete=models.CASCADE, related_name="orders"
+        User, on_delete=models.CASCADE, related_name="orders"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="pending")
+    method = models.CharField(
+        max_length=20, choices=METHOD_CHOICES, default="online_payment")
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
