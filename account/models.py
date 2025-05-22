@@ -33,4 +33,4 @@ class Address(models.Model):
     pelak = models.IntegerField()
 
     def __str__(self):
-        return f"{self.user.username} - {self.address}"
+        return f"{self.profile.user.username} - {self.address}"
