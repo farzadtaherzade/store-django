@@ -5,6 +5,7 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from book.models import Basket, BasketItem
 from .models import Order, OrderItem
 from .serializers import OrderSerializers
+from django.core.mail import send_mail
 
 # Create your views here.
 
@@ -37,8 +38,16 @@ class CheckoutView(GenericAPIView):
                 price=item.get_total_price(),
             )
 
-        basket_items.filter(is_ghost=False).delete()
+        # basket_items.filter(is_ghost=False).delete()
         serializer = self.get_serializer(order)
+        send_mail(
+            subject="Order Confirmation",
+            message=f"Your order #{order.id} has been placed successfully. Total amount: ${order.total_price}",
+            from_email="",
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
         return Response(serializer.data, status=201)
 
 

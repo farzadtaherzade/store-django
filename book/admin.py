@@ -21,7 +21,7 @@ class ReviewAdmin(admin.ModelAdmin):
 
 class BasketItemInline(admin.TabularInline):
     model = BasketItem
-    extra = 0
+    extra = 1
     fields = ["book", "quantity"]
 
 
