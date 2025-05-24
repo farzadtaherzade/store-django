@@ -25,6 +25,8 @@ class Books(models.Model):
         User, on_delete=models.CASCADE, related_name="books")
     is_active = models.BooleanField(default=True)
     view = models.PositiveIntegerField(default=0)
+    file = models.FileField(
+        upload_to="books/", verbose_name="Book Digital File", null=True, blank=True)
 
     class Meta:
         verbose_name = "Book"
