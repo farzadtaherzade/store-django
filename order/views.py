@@ -46,7 +46,7 @@ class CheckoutView(GenericAPIView):
                 )
 
             serializer = self.get_serializer(order)
-            send_email_order(order.id, user.email)
+            send_email_order.delay(order.id, user.email)
 
             # Payment gateway integration
             try:
@@ -149,5 +149,5 @@ def payment_callback(request):
             payment.result = data.get("result")
             payment.save()
 
-    send_payment_email(payment.id, payment.user.email)
+    send_payment_email.delay(payment.id, payment.user.email)
     return Response({"message": "payment was successfuly", "success": success, "status": status}, status=200)
