@@ -75,6 +75,10 @@ class Payment(models.Model):
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default="process"
     )
+    paid_at = models.DateTimeField(null=True, blank=True)
+    ref_number = models.IntegerField(null=True, blank=True)
+    result = models.IntegerField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
