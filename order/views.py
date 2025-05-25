@@ -139,14 +139,13 @@ def payment_callback(request):
         data = res.json()
 
         if data.get("result") == 100:
-            print(data)
+            order = Order.objects.get(id=payment.order.id)
             payment.status = "success"
             payment.result = data.get("result")
             payment.ref_number = data.get("refNumber")
             payment.paid_at = data.get("paidAt")
             payment.save()
 
-            order = Order.objects.get(id=payment.order.id)
             # For thr learnign purpose we will set delivery time to 1 to 4 days
             order.will_deliver_time = datetime.now().date() + timedelta(days=randint(1, 4))
             order.status = "shipped"
