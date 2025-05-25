@@ -19,4 +19,4 @@ class OrderSerializers(serializers.ModelSerializer):
         model = Order
         fields = "__all__"
         read_only_fields = ["created_at", "updated_at",
-                            "user", "total_price", "status"]
+                            "user", "total_price", "status", "will_deliver_time"]

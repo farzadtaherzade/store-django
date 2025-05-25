@@ -2,12 +2,14 @@ from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import OrderingFilter
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from book.models import Basket, BasketItem
 from .models import Order, OrderItem, Payment
 from .serializers import OrderSerializers
 from .tasks import send_email_order, send_payment_email
 import requests as req
+from datetime import timedelta, datetime
+from random import randint
 
 # Create your views here.
 
@@ -113,6 +115,7 @@ class OrderList(ListAPIView):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def payment_callback(request):
     url = "https://gateway.zibal.ir/v1/verify"
     success = request.GET["success"]
@@ -124,8 +127,6 @@ def payment_callback(request):
     except Payment.DoesNotExist:
         return Response({"message": "Payment not found"}, status=404)
 
-    print(status)
-
     if status == "2" and success == "1":
         res = req.post(
             url,
@@ -136,14 +137,20 @@ def payment_callback(request):
         )
 
         data = res.json()
-        print(data)
 
         if data.get("result") == 100:
+            print(data)
             payment.status = "success"
             payment.result = data.get("result")
             payment.ref_number = data.get("refNumber")
             payment.paid_at = data.get("paidAt")
             payment.save()
+
+            order = Order.objects.get(id=payment.order.id)
+            # For thr learnign purpose we will set delivery time to 1 to 4 days
+            order.will_deliver_time = datetime.now().date() + timedelta(days=randint(1, 4))
+            order.status = "shipped"
+            order.save()
         else:
             payment.status = "failed"
             payment.result = data.get("result")

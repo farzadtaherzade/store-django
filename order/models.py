@@ -30,6 +30,8 @@ class Order(models.Model):
         max_length=20, choices=STATUS_CHOICES, default="pending")
     method = models.CharField(
         max_length=20, choices=METHOD_CHOICES, default="online_payment")
+    will_deliver_time = models.DateTimeField(
+        null=True, blank=True)
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
