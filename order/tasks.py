@@ -1,6 +1,7 @@
 from celery import shared_task, beat
 from django.core.mail import send_mail
 from django.conf import settings
+from datetime import datetime, timedelta
 
 
 @shared_task
@@ -57,5 +58,41 @@ def send_payment_email(payment_id, user_mail):
         pass
 
 
+@shared_task
+def send_delivery_email(order_id, user_mail):
+    from .models import Order
+
+    try:
+        order = Order.objects.get(id=order_id)
+        subject = f"Order #{order.id} Delivery Confirmation"
+        message = (
+            f"Hello {order.user.username},\n\n"
+            f"Your order #{order.id} has been delivered successfully.\n"
+            f"Total amount: ${order.total_price}\n"
+            "Thank you for your purchase!\n"
+        )
+
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user_mail],
+            fail_silently=False,
+        )
+    except Order.DoesNotExist:
+        pass
+
+
+@shared_task
 def deliver_book():
-    pass
+    from .models import Order
+
+    print("delivering books")
+
+    orders = Order.objects.filter(
+        will_deliver_time__date=datetime.today().date(), status="shipped")
+
+    for order in orders:
+        order.status = "delivered"
+        order.save()
+        send_delivery_email.delay(order.id, order.user.email)

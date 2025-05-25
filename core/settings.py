@@ -64,8 +64,8 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'dj_rest_auth.registration',
     "django_filters",
-    "silk"
-
+    "silk",
+    "django_celery_beat",
 
     # allauth providers
     # 'allauth.socialaccount.providers.discord',
@@ -198,3 +198,4 @@ DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
 
 # Celery settings
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
