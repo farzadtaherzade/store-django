@@ -1,4 +1,4 @@
-from celery import shared_task
+from celery import shared_task, beat
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -55,3 +55,7 @@ def send_payment_email(payment_id, user_mail):
         )
     except Payment.DoesNotExist:
         pass
+
+
+def deliver_book():
+    pass
