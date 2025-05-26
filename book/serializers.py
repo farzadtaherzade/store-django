@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import Books, Review, BasketItem, Basket
+from .models import Books, Review, BasketItem, BasketItem
 from django.contrib.auth import get_user_model
 from taggit.serializers import TagListSerializerField, TaggitSerializer
+
 User = get_user_model()
 
 

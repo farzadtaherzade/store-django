@@ -1,6 +1,7 @@
 from django.db import models
 from taggit.managers import TaggableManager
 from django.contrib.auth import get_user_model
+from django.core.validators import FileExtensionValidator
 
 # Create your models here.
 
@@ -26,7 +27,7 @@ class Books(models.Model):
     is_active = models.BooleanField(default=True)
     view = models.PositiveIntegerField(default=0)
     file = models.FileField(
-        upload_to="books/", verbose_name="Book Digital File", null=True, blank=True)
+        upload_to="books/", verbose_name="Book Digital File", null=True, blank=True, validators=[FileExtensionValidator(["pdf", "epub"])])
 
     class Meta:
         verbose_name = "Book"
