@@ -7,10 +7,81 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
-    expose:
+    ports:
       - "8000:8000"
     volumes:
       - .:/app
+    env_file:
+      - .env
+    environment:
+      - CELERY_BROKER_URL=amqp://rabbitmq
+      - EMAIL_HOST=smtp4dev
+      - EMAIL_PORT=25
+    depends_on:
+      - rabbitmq
+      - smtp4dev
     command: >
-      sh -c "python manage.py migrate && 
-            python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  celery-worker:
+    container_name: celery-worker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - CELERY_BROKER_URL=amqp://rabbitmq
+      - CELERYD_FORCE_EXECV=True # Disables root warning
+    depends_on:
+      - rabbitmq
+    command: celery -A core worker --loglevel=info
+
+  celery-beat:
+    container_name: celery-beat
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - CELERY_BROKER_URL=amqp://rabbitmq
+      - CELERYD_FORCE_EXECV=True
+    depends_on:
+      - rabbitmq
+    command: celery -A core beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+
+  rabbitmq:
+    container_name: rabbitmq-broker
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672" # Management UI
+      - "5672:5672" # AMQP port
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  smtp4dev:
+    container_name: smtp4dev
+    image: rnwood/smtp4dev
+    ports:
+      - "2525:25" # SMTP port
+      - "5000:80" # Web UI
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "2525" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  rabbitmq_data:
+  smtp4dev_data:
